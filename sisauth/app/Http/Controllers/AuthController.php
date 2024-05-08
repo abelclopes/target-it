@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Tymon\JWTAuth\Exceptions\JWTException;
+use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 /**
  * Class AuthController
@@ -52,15 +53,18 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         try {
-            if (!$token = JWTAuth::attempt($credentials)) {
-                return response()->json(['error' => 'invalid_credentials'], 401);
+            if (!$token = Auth::guard('api')->attempt($credentials)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
         } catch (JWTException $e) {
+            // Caso algo esteja errado com o JWT
             return response()->json(['error' => 'could_not_create_token'], 500);
         }
 
         return $this->respondWithToken($token);
     }
+
+
 
     /**
      * @OA\Get(
@@ -97,7 +101,7 @@ class AuthController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
+            'expires_in' => Auth::guard('api')->factory()->getTTL() * 60 // tempo de vida do token
         ]);
     }
 }

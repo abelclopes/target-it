@@ -11,12 +11,12 @@
     },
     "servers": [
         {
-            "url": "http://localhost:8000/api",
+            "url": "http://localhost:8000",
             "description": "API Server"
         }
     ],
     "paths": {
-        "/login": {
+        "/api/login": {
             "post": {
                 "tags": [
                     "Authentication"
@@ -85,7 +85,7 @@
                 }
             }
         },
-        "/logout": {
+        "/api/logout": {
             "get": {
                 "tags": [
                     "Authentication"
