@@ -11,7 +11,7 @@ class User extends Authenticatable implements JWTSubject
     use Notifiable;
 
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password', 'phone', 'cpf'
     ];
 
     protected $hidden = [
@@ -26,5 +26,11 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    // Relationship to Address model
+    public function addresses()
+    {
+        return $this->belongsToMany(Address::class, 'address_user');
     }
 }

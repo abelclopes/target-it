@@ -19,6 +19,8 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('phone')->nullable(); // Adding phone field
+            $table->string('cpf')->nullable();   // Adding cpf field
             $table->rememberToken();
             $table->timestamps();
         });
@@ -34,3 +36,4 @@ class CreateUsersTable extends Migration
         Schema::dropIfExists('users');
     }
 }
+
