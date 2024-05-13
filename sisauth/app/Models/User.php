@@ -1,15 +1,18 @@
 <?php
 
+// app/Models/User.php
+
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use Notifiable;
-
+    use Notifiable, HasFactory;  
+    
     protected $fillable = [
         'name', 'email', 'password', 'phone', 'cpf'
     ];
@@ -26,11 +29,5 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
-    }
-
-    // Relationship to Address model
-    public function addresses()
-    {
-        return $this->belongsToMany(Address::class, 'address_user');
     }
 }

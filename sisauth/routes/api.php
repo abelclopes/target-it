@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 
+require_once base_path('app/SwaggerDefinitions.php');
+
 Route::group(['middleware' => 'cors'], function () {
     Route::post('/api/login', [AuthController::class, 'login']);
 

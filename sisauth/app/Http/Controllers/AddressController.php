@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Address;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -13,64 +12,33 @@ use Symfony\Component\HttpFoundation\Response;
  *   type="object",
  *   title="Address",
  *   description="Address model",
- *   @OA\Property(
- *     property="id",
- *     type="integer",
- *     description="Address ID",
- *     example=1
- *   ),
- *   @OA\Property(
- *     property="logradouro",
- *     type="string",
- *     description="Street name",
- *     example="123 Main Street"
- *   ),
- *   @OA\Property(
- *     property="numero",
- *     type="string",
- *     description="House number",
- *     example="101"
- *   ),
- *   @OA\Property(
- *     property="bairro",
- *     type="string",
- *     description="Neighborhood",
- *     example="Downtown"
- *   ),
- *   @OA\Property(
- *     property="complemento",
- *     type="string",
- *     description="Address complement",
- *     example="Apartment 5A"
- *   ),
- *   @OA\Property(
- *     property="cep",
- *     type="string",
- *     description="Postal code",
- *     example="12345-678"
- *   )
+ *   @OA\Property(property="id", type="integer", description="Address ID", example=1),
+ *   @OA\Property(property="logradouro", type="string", description="Street name", example="123 Main Street"),
+ *   @OA\Property(property="numero", type="string", description="House number", example="101"),
+ *   @OA\Property(property="bairro", type="string", description="Neighborhood", example="Downtown"),
+ *   @OA\Property(property="complemento", type="string", description="Address complement", example="Apartment 5A"),
+ *   @OA\Property(property="cep", type="string", description="Postal code", example="12345-678"),
+ *   @OA\Property(property="user_id", type="integer", description="Associated user ID", example=1)
  * )
  */
-
 class AddressController extends Controller
 {
     /**
+     * Display the details of a specific address.
+     *
      * @OA\Get(
-     *     path="/api/addresses/{id}/details",
-     *     operationId="showAddressDetails",
+     *     path="/api/addresses/{id}",
+     *     operationId="getAddressDetails",
      *     tags={"Addresses"},
-     *     summary="Display the details of a specific address",
-     *     description="Returns the details of a specific address",
+     *     summary="Get details of an address",
+     *     description="Returns details of a specific address",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="ID of the address",
      *         required=true,
-     *         @OA\Schema(
-     *             type="integer",
-     *             format="int64"
-     *         )
+     *         description="ID of the address",
+     *         @OA\Schema(type="integer")
      *     ),
      *     @OA\Response(
      *         response=200,
@@ -83,60 +51,15 @@ class AddressController extends Controller
      *     )
      * )
      */
-    public function index($id)
+    public function show($id)
     {
         $address = Address::findOrFail($id);
         return response()->json($address);
     }
-    /**
-     * @OA\Get(
-     *     path="/api/addresses/{uid}/user-details",
-     *     operationId="showUserAddresses",
-     *     tags={"Addresses"},
-     *     summary="Display the addresses of a specific user",
-     *     description="Returns the addresses of a specific user",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="uid",
-     *         in="path",
-     *         description="ID of the user",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer",
-     *             format="int64"
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Successful operation",
-     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Address"))
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="User not found"
-     *     )
-     * )
-     */
-    public function getAddresUserId($uid)
-    {
-        // Carrega o usuário com os endereços relacionados
-        $addresses = Address::where('user_id', $uid)->get();
-
-        // Verifica se o usuário foi encontrado
-        if (!$addresses) {
-            // Retorna uma resposta de erro se o usuário não for encontrado
-            return response()->json(['error' => 'addresses not found'], 404);
-        }
-
-
-        // Retorna os endereços como JSON
-        return response()->json($addresses);
-    }
-
-
-
 
     /**
+     * Create a new address for a given user.
+     *
      * @OA\Post(
      *     path="/api/addresses/{uid}/new",
      *     operationId="storeAddress",
@@ -156,7 +79,14 @@ class AddressController extends Controller
      *     ),
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/Address")
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="logradouro", type="string", description="Street name", example="123 Main Street"),
+     *             @OA\Property(property="numero", type="string", description="House number", example="101"),
+     *             @OA\Property(property="bairro", type="string", description="Neighborhood", example="Downtown"),
+     *             @OA\Property(property="complemento", type="string", description="Address complement", nullable=true, example="Apartment 5A"),
+     *             @OA\Property(property="cep", type="string", description="Postal code", example="12345-678")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=201,
@@ -179,7 +109,6 @@ class AddressController extends Controller
             'cep' => 'required|string|max:20',
         ]);
 
-        // Associe o user_id ao endereço
         $validatedData['user_id'] = $uid;
 
         $address = Address::create($validatedData);
@@ -187,11 +116,11 @@ class AddressController extends Controller
         return response()->json($address, Response::HTTP_CREATED);
     }
 
-
-
     /**
+     * Update an existing address with the provided details.
+     *
      * @OA\Put(
-     *     path="/api/addresses/{id}/update",
+     *     path="/api/addresses/{id}",
      *     operationId="updateAddress",
      *     tags={"Addresses"},
      *     summary="Update an existing address",
@@ -200,7 +129,7 @@ class AddressController extends Controller
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="ID of the address",
+     *         description="ID of the address to update",
      *         required=true,
      *         @OA\Schema(
      *             type="integer",
@@ -209,7 +138,16 @@ class AddressController extends Controller
      *     ),
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/Address")
+     *         description="Data to update the address",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="logradouro", type="string", description="Street name"),
+     *             @OA\Property(property="numero", type="string", description="House number"),
+     *             @OA\Property(property="bairro", type="string", description="Neighborhood"),
+     *             @OA\Property(property="complemento", type="string", description="Address complement", nullable=true),
+     *             @OA\Property(property="cep", type="string", description="Postal code"),
+     *             @OA\Property(property="user_id", type="integer", description="Associated user ID")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=200,
@@ -236,6 +174,7 @@ class AddressController extends Controller
             'bairro' => 'string|max:255',
             'complemento' => 'nullable|string|max:255',
             'cep' => 'string|max:20',
+            'user_id' => 'integer'
         ]);
 
         $address->update($validatedData);
@@ -244,17 +183,19 @@ class AddressController extends Controller
     }
 
     /**
+     * Delete an existing address.
+     *
      * @OA\Delete(
-     *     path="/api/addresses/{id}/delete",
+     *     path="/api/addresses/{id}",
      *     operationId="deleteAddress",
      *     tags={"Addresses"},
-     *     summary="Delete an address",
-     *     description="Deletes an existing address",
+     *     summary="Delete an existing address",
+     *     description="Deletes an existing address by ID",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="ID of the address",
+     *         description="ID of the address to delete",
      *         required=true,
      *         @OA\Schema(
      *             type="integer",
