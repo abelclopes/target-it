@@ -68,7 +68,6 @@ class User extends Authenticatable implements JWTSubject
      */
     public function hasAnyRole($roles): bool
     {
-        var_dump($roles);
         // Verifica se o usuário tem pelo menos uma das roles necessárias
         return $this->roles()->whereIn('name', (array) $roles)->exists();
     }
