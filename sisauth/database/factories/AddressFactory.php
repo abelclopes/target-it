@@ -13,7 +13,7 @@ class AddressFactory extends Factory
     public function definition()
     {
         return [
-            'user_id' => null,  // Deixe null como padrão
+            'user_id' => null,  
             'logradouro' => $this->faker->streetAddress,
             'numero' => $this->faker->buildingNumber,
             'bairro' => $this->faker->city,

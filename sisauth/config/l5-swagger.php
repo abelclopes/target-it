@@ -1,18 +1,5 @@
 <?php
 
-/**
- * @OA\Info(
- *   title="API de Exemplo",
- *   version="1.0.0",
- *   description="Esta é uma API de exemplo para demonstrar documentação com Swagger.",
- *   @OA\Contact(
- *     email="suporte@apiexemplo.com",
- *     name="Suporte API"
- *   )
- * )
- */
-
-
 return [
     'default' => 'default',
     'documentations' => [
@@ -53,9 +40,7 @@ return [
                 */
                 'annotations' => [
                     base_path('app'),
-                    base_path('app/Http/Controllers'),
-                    base_path('app/SwaggerDefinitions.php'),  
-                ],              
+                ],
 
             ],
         ],
@@ -110,7 +95,7 @@ return [
             'swagger_ui_assets_path' => env('L5_SWAGGER_UI_ASSETS_PATH', 'vendor/swagger-api/swagger-ui/dist/'),
 
             /*
-             * Absolute path to directories that should be excluded from scanning
+             * Absolute path to directories that should be exclude from scanning
              * @deprecated Please use `scanOptions.exclude`
              * `scanOptions.exclude` overwrites this
             */
@@ -135,7 +120,7 @@ return [
             /**
              * Custom query path processors classes.
              *
-             * @link https://github.com/zircote/swagger-php/tree/master/Examples/processors/schema-query-parameter
+             * @link https://github.com/zircote/swagger-php/tree/master/Examples/schema-query-parameter-processor
              * @see \OpenApi\scan
              */
             'processors' => [
@@ -150,17 +135,11 @@ return [
             'pattern' => null,
 
             /*
-             * Absolute path to directories that should be excluded from scanning
+             * Absolute path to directories that should be exclude from scanning
              * @note This option overwrites `paths.excludes`
              * @see \OpenApi\scan
             */
             'exclude' => [],
-
-            /*
-             * Allows to generate specs either for OpenAPI 3.0.0 or OpenAPI 3.1.0.
-             * By default the spec will be in version 3.0.0
-             */
-            'open_api_spec_version' => env('L5_SWAGGER_OPEN_API_SPEC_VERSION', \L5Swagger\Generator::OPEN_API_DEFAULT_SPEC_VERSION),
         ],
 
         /*
@@ -212,7 +191,8 @@ return [
                     'name' => 'Authorization', // The name of the header or query parameter to be used.
                     'in' => 'header', // The location of the API key. Valid values are "query" or "header".
                 ],
-                */],
+                */
+            ],
             'security' => [
                 /*
                  * Examples of Securities
@@ -225,7 +205,8 @@ return [
                     ],
 
                     'passport' => []
-                    */],
+                    */
+                ],
             ],
         ],
 
@@ -233,7 +214,7 @@ return [
          * Set this to `true` in development mode so that docs would be regenerated on each request
          * Set this to `false` to disable swagger generation on production
         */
-        'generate_always' => env('L5_SWAGGER_GENERATE_ALWAYS', true),
+        'generate_always' => env('L5_SWAGGER_GENERATE_ALWAYS', false),
 
         /*
          * Set this to `true` to generate a copy of documentation in yaml format
@@ -294,13 +275,6 @@ return [
                  * If set to true, it persists authorization data, and it would not be lost on browser close/refresh
                  */
                 'persist_authorization' => env('L5_SWAGGER_UI_PERSIST_AUTHORIZATION', false),
-
-                'oauth2' => [
-                    /*
-                    * If set to true, adds PKCE to AuthorizationCodeGrant flow
-                    */
-                    'use_pkce_with_authorization_code_grant' => false,
-                ],
             ],
         ],
         /*

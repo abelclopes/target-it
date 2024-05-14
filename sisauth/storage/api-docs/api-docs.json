@@ -1,34 +1,22 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "API de Usuários",
-        "description": "Uma API simples para gerenciamento de usuários com autenticação JWT.",
-        "contact": {
-            "name": "Suporte Técnico",
-            "email": "suporte@example.com"
-        },
+        "title": "Your Application API document",
         "version": "1.0.0"
     },
-    "servers": [
-        {
-            "url": "http://localhost:8000",
-            "description": "API Server"
-        }
-    ],
     "paths": {
         "/api/addresses/{id}/details": {
             "get": {
                 "tags": [
                     "Addresses"
                 ],
-                "summary": "Display the details of a specific address",
-                "description": "Returns the details of a specific address",
+                "summary": "Get details of an address",
+                "description": "Returns details of a specific address",
                 "operationId": "showAddressDetails",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "ID of the address",
                         "required": true,
                         "schema": {
                             "type": "integer",
@@ -63,14 +51,13 @@
                 "tags": [
                     "Addresses"
                 ],
-                "summary": "Display the addresses of a specific user",
-                "description": "Returns the addresses of a specific user",
+                "summary": "Get addresses of a user",
+                "description": "Returns addresses of a specific user",
                 "operationId": "showUserAddresses",
                 "parameters": [
                     {
                         "name": "uid",
                         "in": "path",
-                        "description": "ID of the user",
                         "required": true,
                         "schema": {
                             "type": "integer",
@@ -123,6 +110,16 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Address"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "201": {
                         "description": "Address created successfully",
@@ -157,7 +154,7 @@
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "ID of the address",
+                        "description": "ID of the address to update",
                         "required": true,
                         "schema": {
                             "type": "integer",
@@ -166,11 +163,39 @@
                     }
                 ],
                 "requestBody": {
+                    "description": "Data to update the address",
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Address"
+                                "properties": {
+                                    "logradouro": {
+                                        "description": "Street name",
+                                        "type": "string"
+                                    },
+                                    "numero": {
+                                        "description": "House number",
+                                        "type": "string"
+                                    },
+                                    "bairro": {
+                                        "description": "Neighborhood",
+                                        "type": "string"
+                                    },
+                                    "complemento": {
+                                        "description": "Address complement",
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "cep": {
+                                        "description": "Postal code",
+                                        "type": "string"
+                                    },
+                                    "user_id": {
+                                        "description": "Associated user ID",
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
                             }
                         }
                     }
@@ -205,14 +230,14 @@
                 "tags": [
                     "Addresses"
                 ],
-                "summary": "Delete an address",
-                "description": "Deletes an existing address",
+                "summary": "Delete an existing address",
+                "description": "Deletes an existing address by ID",
                 "operationId": "deleteAddress",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "ID of the address",
+                        "description": "ID of the address to delete",
                         "required": true,
                         "schema": {
                             "type": "integer",
@@ -235,24 +260,18 @@
                 ]
             }
         },
-        "/api/login": {
+        "/api/auth/login": {
             "post": {
                 "tags": [
                     "Authentication"
                 ],
-                "summary": "Login User",
-                "description": "Login user and returns a JWT token",
-                "operationId": "loginUser",
+                "summary": "Login",
+                "description": "Login",
+                "operationId": "dd51a484b7fa0f97c7680fdbde14cf5f",
                 "requestBody": {
-                    "description": "User login credentials",
-                    "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "email",
-                                    "password"
-                                ],
                                 "properties": {
                                     "email": {
                                         "type": "string",
@@ -272,14 +291,34 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Successful login",
+                        "description": "Login"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                }
+            }
+        },
+        "/api/auth/refresh": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Refresh Token",
+                "description": "Endpoint para atualizar o token JWT.",
+                "operationId": "authRefresh",
+                "responses": {
+                    "200": {
+                        "description": "Token JWT atualizado com sucesso",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
                                         "access_token": {
-                                            "type": "string",
-                                            "example": "eyJ0eXAiOiJKV1Qi..."
+                                            "type": "string"
                                         },
                                         "token_type": {
                                             "type": "string",
@@ -287,7 +326,7 @@
                                         },
                                         "expires_in": {
                                             "type": "integer",
-                                            "example": 3600
+                                            "example": "3600"
                                         }
                                     },
                                     "type": "object"
@@ -296,32 +335,138 @@
                         }
                     },
                     "401": {
-                        "description": "Invalid credentials"
-                    },
-                    "500": {
-                        "description": "Could not create token"
-                    }
-                }
-            }
-        },
-        "/api/logout": {
-            "get": {
-                "tags": [
-                    "Authentication"
-                ],
-                "summary": "Logout User",
-                "description": "Logs out the user and invalidate the token",
-                "operationId": "logoutUser",
-                "responses": {
-                    "200": {
-                        "description": "Successful logout",
+                        "description": "Token expirado ou inválido",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "Successfully logged out"
+                                            "example": "Unauthenticated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/profile": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Authenticated User Profile",
+                "description": "User Profile",
+                "operationId": "18b2d1b72b1e2987c1eece1cf7318b47",
+                "responses": {
+                    "200": {
+                        "description": "Authenticated User Profile"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/change-password": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Change user's password",
+                "description": "Change the password of the authenticated user.",
+                "operationId": "changePassword",
+                "requestBody": {
+                    "description": "Password change request data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "old_password",
+                                    "new_password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@exemple.com"
+                                    },
+                                    "old_password": {
+                                        "description": "Current password",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "oldPassword123"
+                                    },
+                                    "new_password": {
+                                        "description": "New password",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "newPassword123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password changed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Password changed successfully"
+                                        },
+                                        "user": {
+                                            "$ref": "#/components/schemas/User"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The email provided does not match the email of the authenticated user."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
                                         }
                                     },
                                     "type": "object"
@@ -381,7 +526,35 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/User"
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "secret"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "1234567890"
+                                    },
+                                    "cpf": {
+                                        "type": "string",
+                                        "example": "123.456.789-01"
+                                    }
+                                },
+                                "type": "object"
                             }
                         }
                     }
@@ -572,6 +745,11 @@
                         "description": "Postal code",
                         "type": "string",
                         "example": "12345-678"
+                    },
+                    "user_id": {
+                        "description": "Associated user ID",
+                        "type": "integer",
+                        "example": 1
                     }
                 },
                 "type": "object"
@@ -612,6 +790,8 @@
         "securitySchemes": {
             "bearerAuth": {
                 "type": "http",
+                "name": "bearerAuth",
+                "in": "header",
                 "bearerFormat": "JWT",
                 "scheme": "bearer"
             }

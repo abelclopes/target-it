@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Models\Address;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,8 +28,8 @@ class AddressController extends Controller
      * Display the details of a specific address.
      *
      * @OA\Get(
-     *     path="/api/addresses/{id}",
-     *     operationId="getAddressDetails",
+     *     path="/api/addresses/{id}/details",
+     *     operationId="showAddressDetails",
      *     tags={"Addresses"},
      *     summary="Get details of an address",
      *     description="Returns details of a specific address",
@@ -37,8 +38,7 @@ class AddressController extends Controller
      *         name="id",
      *         in="path",
      *         required=true,
-     *         description="ID of the address",
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="integer", format="int64")
      *     ),
      *     @OA\Response(
      *         response=200,
@@ -58,6 +58,44 @@ class AddressController extends Controller
     }
 
     /**
+     * Display the addresses of a specific user.
+     *
+     * @OA\Get(
+     *     path="/api/addresses/{uid}/user-details",
+     *     operationId="showUserAddresses",
+     *     tags={"Addresses"},
+     *     summary="Get addresses of a user",
+     *     description="Returns addresses of a specific user",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="uid",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer", format="int64")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Address"))
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="User not found"
+     *     )
+     * )
+     */
+    public function getAddresUserId($uid)
+    {
+        $addresses = Address::where('user_id', $uid)->get();
+
+        if ($addresses->isEmpty()) {
+            return response()->json(['error' => 'Addresses not found'], 404);
+        }
+
+        return response()->json($addresses);
+    }
+
+    /**
      * Create a new address for a given user.
      *
      * @OA\Post(
@@ -72,21 +110,11 @@ class AddressController extends Controller
      *         in="path",
      *         description="ID of the user",
      *         required=true,
-     *         @OA\Schema(
-     *             type="integer",
-     *             format="int64"
-     *         )
+     *         @OA\Schema(type="integer", format="int64")
      *     ),
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="logradouro", type="string", description="Street name", example="123 Main Street"),
-     *             @OA\Property(property="numero", type="string", description="House number", example="101"),
-     *             @OA\Property(property="bairro", type="string", description="Neighborhood", example="Downtown"),
-     *             @OA\Property(property="complemento", type="string", description="Address complement", nullable=true, example="Apartment 5A"),
-     *             @OA\Property(property="cep", type="string", description="Postal code", example="12345-678")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/Address")
      *     ),
      *     @OA\Response(
      *         response=201,
@@ -120,7 +148,7 @@ class AddressController extends Controller
      * Update an existing address with the provided details.
      *
      * @OA\Put(
-     *     path="/api/addresses/{id}",
+     *     path="/api/addresses/{id}/update",
      *     operationId="updateAddress",
      *     tags={"Addresses"},
      *     summary="Update an existing address",
@@ -131,10 +159,7 @@ class AddressController extends Controller
      *         in="path",
      *         description="ID of the address to update",
      *         required=true,
-     *         @OA\Schema(
-     *             type="integer",
-     *             format="int64"
-     *         )
+     *         @OA\Schema(type="integer", format="int64")
      *     ),
      *     @OA\RequestBody(
      *         required=true,
@@ -186,7 +211,7 @@ class AddressController extends Controller
      * Delete an existing address.
      *
      * @OA\Delete(
-     *     path="/api/addresses/{id}",
+     *     path="/api/addresses/{id}/delete",
      *     operationId="deleteAddress",
      *     tags={"Addresses"},
      *     summary="Delete an existing address",
@@ -197,10 +222,7 @@ class AddressController extends Controller
      *         in="path",
      *         description="ID of the address to delete",
      *         required=true,
-     *         @OA\Schema(
-     *             type="integer",
-     *             format="int64"
-     *         )
+     *         @OA\Schema(type="integer", format="int64")
      *     ),
      *     @OA\Response(
      *         response=204,

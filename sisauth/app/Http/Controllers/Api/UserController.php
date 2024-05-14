@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -109,8 +110,12 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $user = User::findOrFail($id);
-        return response()->json($user);
+        try {
+            $user = User::findOrFail($id);
+            return response()->json($user);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Resource not found'], 404);
+        }
     }
 
     /**
@@ -123,8 +128,15 @@ class UserController extends Controller
      *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/User")
-     *     ),
+     *         @OA\JsonContent(
+     *              required={"name", "email", "password"},
+     *                @OA\Property(property="name", type="string", example="John Doe"),
+     *                @OA\Property(property="email", type="string", format="email", example="john@example.com"),
+     *                @OA\Property(property="password", type="string", example="secret"),
+     *                @OA\Property(property="phone", type="string", example="1234567890"),
+     *                @OA\Property(property="cpf", type="string", example="123.456.789-01")
+     *              )
+     *          ),
      *     @OA\Response(
      *         response=201,
      *         description="User created successfully",
@@ -142,15 +154,15 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6',
-            'phone' => 'nullable|string|max:20', 
-            'cpf' => 'nullable|string|max:20',               
+            'phone' => 'nullable|string|max:20',
+            'cpf' => 'nullable|string|max:20',
         ]);
 
         $user = User::create([
             'name' => $validatedData['name'],
             'email' => $validatedData['email'],
             'password' => Hash::make($validatedData['password']),
-            'phone' => $validatedData['phone'], 
+            'phone' => $validatedData['phone'],
             'cpf' => $validatedData['cpf'],
         ]);
 

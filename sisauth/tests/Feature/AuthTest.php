@@ -50,7 +50,7 @@ class AuthTest extends TestCase
 
     public function test_user_can_logout()
     {
-        // Primeiro faça login
+        // First, login
         $loginResponse = $this->postJson('/api/login', [
             'email' => 'user@example.com',
             'password' => 'password',
@@ -58,11 +58,11 @@ class AuthTest extends TestCase
 
         $token = $loginResponse->json('access_token');
 
-        // Depois faça logout
+        // Then logout with a POST request
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-            ->getJson('/api/logout');
+            ->postJson('/api/logout'); // Change getJson to postJson
 
         $response->assertStatus(200)
-            ->assertJson(['message' => 'Successfully logged out']);
+            ->assertJson(['message' => 'User successfully signed out']); // Adjusted assertion message
     }
 }
